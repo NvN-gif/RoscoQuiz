@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROSCO QUIZ</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <section id="pantalla-inicial">
+        <audio id="musica-menu" loop>
+            <source src="aud/menu.mp3" type="audio/mp3">
+            Tu navegador no soporta el elemento de audio.
+        </audio>
+        <h1 id="titulo-juego">ROSCO QUIZ</h1>
+        <button id="comenzar">COMENZAR JUEGO</button>
+    </section>
+    <section id="pantalla-juego" style="display: none;">
+        <audio id="musica-juego" loop>
+            <source src="aud/normal.mp3" type="audio/mp3">
+            Tu navegador no soporta el elemento de audio.
+        </audio>
+        <audio id="musica-poco-tiempo" loop>
+            <source src="aud/poco tiempo.mp3" type="audio/mp3">
+            Tu navegador no soporta el elemento de audio.
+        </audio>
+        <div class="container">
+            <span id="tiempo">150</span>
+        </div>
+        <div class="contendor-pregunta">
+            <span id="letra-pregunta"></span>
+            <h2 id="pregunta">Pregunta...</h2>
+            <input type="text" id="respuesta">
+            <div class="botones">
+                <button id="responder">Responder</button>
+                <button id="pasar">Pasa Palabra</button>
+            </div>
+        </div>
+    </section>
+    <section id="pantalla-final" style="display: none;">
+        <h1>Resumen</h1>
+        <h3>Acertadas</h3>
+        <span id="acertadas">10</span>
+        <h3 id="score">40% de acierto</h3>
+        <button id="recomenzar">Jugar de Nuevo</button>
+    </section>
+    <script src="script.js"></script>
+</body>
+</html>
