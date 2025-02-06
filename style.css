@@ -225,6 +225,25 @@ button:hover {
     box-shadow: 0 0 10px fuchsia; /* Efecto neón */
 }
 
+.respuestas-container {
+    background: rgba(0, 255, 255, 0.7); /* Fondo similar al resto de la interfaz */
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid fuchsia;
+    margin-top: 20px;
+    box-shadow: 0 0 20px rgba(148, 0, 211, 0.5); /* Efecto neón */
+    font-family: 'Montserrat', sans-serif; /* Tipografía consistente */
+    color: #9400D3; /* Color del texto */
+}
+
+.respuestas-container div {
+    margin-bottom: 10px;
+    font-weight: bold; /* Negrita para destacar las respuestas */
+    font-size: 18px; /* Ajustar el tamaño de fuente */
+    text-align: left; /* Alinear el texto a la izquierda */
+    text-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF; /* Efecto de sombra en el texto */
+}
+
 /* Media Queries para pantallas menores a 526px */
 @media screen and (max-width: 526px) {
     body {

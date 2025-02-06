@@ -19,7 +19,7 @@ const bd_juego = {
     B: [
         { pregunta:"Que es extraordinariamente grande, fuerte, bueno o intenso", respuesta: "Brutal" },
         { pregunta:"Monumento en Londres con una gran torre de reloj", respuesta: "Big Ben" },
-        { pregunta:"Ciudad famosa por su puente de arco", respuesta: "Brujas" },
+        { pregunta:"Ciudad flamenca de habla neerlandesa belga. Es la capital de la provincia de Flandes Occidental. Situada en el extremo noroeste de Bélgica", respuesta: "Brujas" },
         { pregunta:"Pequeña ave conocida por su canto nocturno", respuesta: "Búho" },
         { pregunta:"Vegetal de hojas verdes y tallo largo, se usa en ensaladas", respuesta: "Brócoli" },
         { pregunta:"Símbolo patrio y representante del espíritu de unidad, valor y patriotismo", respuesta:"Bandera"},
@@ -336,9 +336,12 @@ var cantidadAcertadas = 0;
 var numPreguntaActual = -1;
 let timeLeft = TIEMPO_DEL_JUEGO;
 var countdown;
-
 // Almacena la pregunta actual de cada letra
 var preguntasActuales = {};
+
+// Almacena las respuestas del usuario y las respuestas correctas
+var respuestasUsuario = []; // Asegúrate de que sea un arreglo vacío
+var respuestasCorrectas = []; // Asegúrate de que sea un arreglo vacío
 
 // Obtener elementos del DOM
 const timer = document.getElementById("tiempo");
@@ -365,7 +368,6 @@ for (let i = 0; i < numCirculos; i++) {
     circle.textContent = String.fromCharCode(i + 65); // Letras A-Z
     circle.id = String.fromCharCode(i + 65);
     container.appendChild(circle);
-    
     // Calcular la posición de cada círculo
     const angle = (i / numCirculos) * Math.PI * 2 - (Math.PI / 2);
     const x = Math.round(225 + radio * Math.cos(angle));
@@ -412,7 +414,6 @@ function cargarPregunta() {
         mostrarPantallaFinal();
         return;
     }
-
     // Seleccionar letra actual
     do {
         numPreguntaActual++;
@@ -420,9 +421,7 @@ function cargarPregunta() {
             numPreguntaActual = 0; // Reinicia si llega al final
         }
     } while (estadoPreguntas[numPreguntaActual] === 1); // Encuentra una pregunta no respondida
-
     const letraActual = String.fromCharCode(numPreguntaActual + 65); // Convertir a letra
-
     // Verificar si ya hay una pregunta seleccionada para esta letra
     if (!preguntasActuales[letraActual]) {
         // Si no hay, seleccionar una pregunta aleatoria
@@ -430,7 +429,6 @@ function cargarPregunta() {
         const preguntaAleatoria = preguntas[Math.floor(Math.random() * preguntas.length)];
         preguntasActuales[letraActual] = preguntaAleatoria; // Almacenar la pregunta seleccionada
     }
-
     // Mostrar la pregunta almacenada
     const preguntaActual = preguntasActuales[letraActual];
     document.getElementById("letra-pregunta").textContent = letraActual;
@@ -439,12 +437,22 @@ function cargarPregunta() {
 }
 
 function controlarRespuesta(txtRespuesta) {
+    // Asegúrate de que txtRespuesta sea un string
+    if (typeof txtRespuesta !== 'string') {
+        console.error("txtRespuesta no es un string:", txtRespuesta);
+        return; // Salir si no es un string
+    }
+
     const letraActual = String.fromCharCode(numPreguntaActual + 65); // Convertir a letra
     const preguntaActual = preguntasActuales[letraActual];
-
+    
     // Normalizar las respuestas
     const respuestaCorrecta = preguntaActual.respuesta.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     const respuestaUsuario = txtRespuesta.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    
+    // Almacenar las respuestas
+    respuestasUsuario.push(respuestaUsuario);
+    respuestasCorrectas.push(respuestaCorrecta);
 
     if (respuestaUsuario === respuestaCorrecta) {
         cantidadAcertadas++;
@@ -456,15 +464,15 @@ function controlarRespuesta(txtRespuesta) {
         document.getElementById(letraActual).classList.remove("pregunta-actual");
         document.getElementById(letraActual).classList.add("mal-respondida");
     }
-
     respuesta.value = "";
     cargarPregunta();
 }
 
 function pasarPregunta() {
     const letraActual = String.fromCharCode(numPreguntaActual + 65); // Convertir a letra
+    // No marcar la letra como respondida
     document.getElementById(letraActual).classList.remove("pregunta-actual");
-    cargarPregunta();
+    cargarPregunta(); // Cargar la siguiente pregunta
 }
 
 // Funciones del cronómetro
@@ -472,17 +480,14 @@ function largarTiempo() {
     countdown = setInterval(() => {
         timeLeft--;
         timer.innerText = timeLeft;
-
         // Cambiar color del cronómetro según el tiempo restante
         if (timeLeft <= 10) {
             timer.style.color = 'red'; // Cambiar a rojo cuando quedan 10 segundos o menos
             timer.classList.add('vibrar'); // Agrega vibración
-
             // Vibrar si el dispositivo lo permite
             if (navigator.vibrate) {
                 navigator.vibrate(500); // Vibrar durante 500ms
             }
-
             // Reproducir música de poco tiempo
             if (musicaPocoTiempo.paused) {
                 musicaPocoTiempo.currentTime = 0; // Reiniciar la música
@@ -490,7 +495,6 @@ function largarTiempo() {
                     console.error("Error al intentar reproducir la música de poco tiempo:", error);
                 });
             }
-
             // Pausar la música de fondo
             if (!musicaJuego.paused) {
                 musicaJuego.pause();
@@ -502,7 +506,6 @@ function largarTiempo() {
             timer.style.color = '#9400D3'; // Color original
             timer.classList.remove('vibrar'); // Quita vibración
         }
-
         if (timeLeft < 0) {
             clearInterval(countdown);
             mostrarPantallaFinal();
@@ -513,6 +516,17 @@ function largarTiempo() {
 function mostrarPantallaFinal() {
     document.getElementById("acertadas").textContent = cantidadAcertadas;
     document.getElementById("score").textContent = (cantidadAcertadas * 100) / TOTAL_PREGUNTAS + "% de acierto";
+
+    // Mostrar respuestas del usuario y las respuestas correctas
+    const respuestasContainer = document.getElementById("respuestas-container");
+    respuestasContainer.innerHTML = ""; // Limpiar el contenedor antes de agregar nuevas respuestas
+
+    for (let i = 0; i < respuestasUsuario.length; i++) {
+        const respuestaDiv = document.createElement("div");
+        respuestaDiv.textContent = `Pregunta ${String.fromCharCode(i + 65)}: Tu respuesta: "${respuestasUsuario[i]}", Respuesta correcta: "${respuestasCorrectas[i]}"`;
+        respuestasContainer.appendChild(respuestaDiv);
+    }
+
     document.getElementById("pantalla-juego").style.display = "none";
     document.getElementById("pantalla-final").style.display = "block";
 }
@@ -524,6 +538,8 @@ function reiniciarJuego() {
     cantidadAcertadas = 0;
     estadoPreguntas.fill(0);
     preguntasActuales = {}; // Reiniciar las preguntas actuales
+    respuestasUsuario = []; // Reiniciar las respuestas del usuario
+    respuestasCorrectas = []; // Reiniciar las respuestas correctas
 
     // Quito las clases de los círculos
     const circulos = document.getElementsByClassName("circle");
@@ -532,24 +548,17 @@ function reiniciarJuego() {
         circulos[i].classList.remove("mal-respondida");
         circulos[i].classList.remove("pregunta-actual");
     }
-
     document.getElementById("pantalla-final").style.display = "none";
     document.getElementById("pantalla-juego").style.display = "block";
-
     // Reiniciar la música del juego
     musicaJuego.currentTime = 0; // Reiniciar la música
     musicaJuego.play().catch(error => {
         console.error("Error al intentar reproducir la música del juego:", error);
     });
-
     // Pausar la música de poco tiempo
     if (!musicaPocoTiempo.paused) {
         musicaPocoTiempo.pause();
     }
-
-
-
-
     largarTiempo();
     cargarPregunta();
 }
